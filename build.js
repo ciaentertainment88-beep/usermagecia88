@@ -29,19 +29,17 @@ h1 { color: #333; margin-bottom: 40px; }
 <div class="columns">
 `;
 
-const folders = fs.readdirSync(logoFolder);
+const folders = fs.readdirSync(logoFolder).filter(f => fs.statSync(path.join(logoFolder, f)).isDirectory());
 folders.forEach(folder => {
-    const folderPath = path.join(logoFolder, folder);
-    if (fs.statSync(folderPath).isDirectory()) {
-        html += `<div class="column">\n<h2>${folder}</h2>\n`;
-        const files = fs.readdirSync(folderPath);
-        files.forEach(file => {
-            const ext = path.extname(file);
-            const name = path.basename(file, ext);
-            html += `<img src="LOGO/${folder}/${file}" alt="${name}"><div class="caption">${file}</div>\n`;
-        });
-        html += `</div>\n`;
-    }
+    const folderSafe = folder.replace(/ /g, "_"); // ganti spasi dengan underscore
+    html += `<div class="column"><h2>${folderSafe}</h2>\n`;
+    const files = fs.readdirSync(path.join(logoFolder, folder));
+    files.forEach(file => {
+        const filePath = `LOGO/${folderSafe}/${file}`;
+        const fileName = path.basename(file);
+        html += `<img src="${filePath}" alt="${fileName}"><div class="caption">${fileName}</div>\n`;
+    });
+    html += `</div>\n`;
 });
 
 html += `</div>\n</body>\n</html>`;
