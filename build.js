@@ -31,7 +31,7 @@ function readImagesPerFolder(dir, folders) {
     return images;
 }
 
-// Generate HTML interaktif
+// Generate HTML interaktif + lightbox
 function generateHTML(images) {
     const folders = Object.keys(images);
     let html = `<!DOCTYPE html>
@@ -39,7 +39,7 @@ function generateHTML(images) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CIA88 ASSET BY DIGMA88</title>
+<title>Logo Gallery</title>
 <style>
 body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
 h1 { margin-bottom: 20px; text-align: center; }
@@ -48,11 +48,17 @@ button { margin: 5px; padding: 8px 16px; cursor: pointer; border-radius: 5px; bo
 button:hover { background: #0050e9; color: #fff; }
 button.active { background: #0050e9; color: #fff; }
 .gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
-.gallery img { max-width: 150px; width: 100%; height: auto; border: 1px solid #ccc; border-radius: 8px; display: none; transition: transform 0.3s, box-shadow 0.3s; }
+.gallery img { max-width: 150px; height: auto; border: 1px solid #ccc; border-radius: 8px; display: none; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
 .gallery img:hover { transform: scale(1.1); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-@media (max-width: 600px) {
-    .gallery img { max-width: 100px; }
+
+/* Lightbox styles */
+#lightboxOverlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center;
+    z-index: 1000;
 }
+#lightboxOverlay img { max-width: 90%; max-height: 90%; border-radius: 10px; }
+#lightboxOverlay span { position: absolute; top: 20px; right: 30px; font-size: 30px; color: #fff; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -72,22 +78,39 @@ button.active { background: #0050e9; color: #fff; }
     // semua gambar
     for (const [folder, files] of Object.entries(images)) {
         files.forEach(f => {
-            html += `<img src="${f}" alt="${path.basename(f)}" data-folder="${folder}">\n`;
+            html += `<img src="${f}" alt="${path.basename(f)}" data-folder="${folder}" onclick="openLightbox('${f}')">\n`;
         });
     }
 
     html += `</div>
+
+<!-- Lightbox overlay -->
+<div id="lightboxOverlay" onclick="closeLightbox()">
+  <span>&times;</span>
+  <img id="lightboxImage" src="" alt="Gambar">
+</div>
+
 <script>
 function filterFolder(folder) {
-    const imgs = document.querySelectorAll('img');
+    const imgs = document.querySelectorAll('.gallery img');
     imgs.forEach(img => {
-        img.style.display = (folder === 'all' || img.dataset.folder === folder) ? 'block' : 'none';
+        img.style.display = (folder === 'all' || img.dataset.folder === folder) ? 'inline-block' : 'none';
     });
-    document.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('#buttons button').forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
 }
-// tampilkan semua awalnya
 filterFolder('all');
+
+function openLightbox(src) {
+    const overlay = document.getElementById('lightboxOverlay');
+    const img = document.getElementById('lightboxImage');
+    img.src = src;
+    overlay.style.display = 'flex';
+}
+
+function closeLightbox() {
+    document.getElementById('lightboxOverlay').style.display = 'none';
+}
 </script>
 </body>
 </html>`;
@@ -100,4 +123,4 @@ const images = readImagesPerFolder(path.join(outputDir, 'LOGO'), folders);
 const htmlContent = generateHTML(images);
 fs.writeFileSync(outputFile, htmlContent, 'utf8');
 
-console.log(`✅ HTML interaktif dengan hover & responsive berhasil dibuat di ${outputFile}`);
+console.log(`✅ HTML gallery dengan lightbox berhasil dibuat di ${outputFile}`);
