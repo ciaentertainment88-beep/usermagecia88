@@ -1,4 +1,3 @@
-// build.js
 const fs = require('fs');
 const path = require('path');
 const fse = require('fs-extra');
@@ -13,75 +12,82 @@ fse.ensureDirSync(outputDir);
 // Copy semua folder LOGO ke dist/LOGO
 fse.copySync(logoDir, path.join(outputDir, 'LOGO'));
 
-// Fungsi untuk membaca semua file gambar di folder beserta subfolder
-function readImages(dir) {
-    const categories = fs.readdirSync(dir, { withFileTypes: true })
+// Baca semua folder di LOGO
+function readFolders(dir) {
+    return fs.readdirSync(dir, { withFileTypes: true })
         .filter(d => d.isDirectory())
         .map(d => d.name);
+}
 
+// Baca semua gambar per folder
+function readImagesPerFolder(dir, folders) {
     const images = {};
-
-    categories.forEach(cat => {
-        const catPath = path.join(dir, cat);
-        const files = fs.readdirSync(catPath)
+    folders.forEach(folder => {
+        const folderPath = path.join(dir, folder);
+        const files = fs.readdirSync(folderPath)
             .filter(f => /\.(png|gif|jpg|jpeg|webp)$/i.test(f));
-        images[cat] = files.map(f => path.join('LOGO', cat, f));
+        images[folder] = files.map(f => path.join('LOGO', folder, f));
     });
-
     return images;
 }
 
 // Generate HTML interaktif
 function generateHTML(images) {
-    const categories = Object.keys(images);
+    const folders = Object.keys(images);
     let html = `<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Logo Gallery</title>
+<title>CIA88 ASSET BY DIGMA88</title>
 <style>
 body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
-h1 { margin-bottom: 20px; }
-button { margin: 5px; padding: 8px 16px; cursor: pointer; border-radius: 5px; border: 1px solid #ccc; background: #eee; }
+h1 { margin-bottom: 20px; text-align: center; }
+#buttons { text-align: center; margin-bottom: 20px; }
+button { margin: 5px; padding: 8px 16px; cursor: pointer; border-radius: 5px; border: 1px solid #ccc; background: #eee; transition: 0.3s; }
+button:hover { background: #0050e9; color: #fff; }
 button.active { background: #0050e9; color: #fff; }
-.gallery { display: flex; flex-wrap: wrap; margin-top: 20px; }
-img { max-width: 150px; margin: 10px; border: 1px solid #ccc; border-radius: 8px; display: none; }
+.gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
+.gallery img { max-width: 150px; width: 100%; height: auto; border: 1px solid #ccc; border-radius: 8px; display: none; transition: transform 0.3s, box-shadow 0.3s; }
+.gallery img:hover { transform: scale(1.1); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+@media (max-width: 600px) {
+    .gallery img { max-width: 100px; }
+}
 </style>
 </head>
 <body>
 <h1>Logo Gallery</h1>
 <div id="buttons">
-<button class="active" onclick="filterCategory('all')">Semua</button>
+<button class="active" onclick="filterFolder('all')">Semua</button>
 `;
 
-    // tombol kategori
-    categories.forEach(cat => {
-        html += `<button onclick="filterCategory('${cat}')">${cat}</button>\n`;
+    // tombol folder
+    folders.forEach(folder => {
+        html += `<button onclick="filterFolder('${folder}')">${folder}</button>\n`;
     });
 
     html += `</div>
 <div class="gallery">\n`;
 
     // semua gambar
-    for (const [category, files] of Object.entries(images)) {
+    for (const [folder, files] of Object.entries(images)) {
         files.forEach(f => {
-            html += `<img src="${f}" alt="${path.basename(f)}" data-category="${category}">\n`;
+            html += `<img src="${f}" alt="${path.basename(f)}" data-folder="${folder}">\n`;
         });
     }
 
     html += `</div>
 <script>
-function filterCategory(cat) {
+function filterFolder(folder) {
     const imgs = document.querySelectorAll('img');
     imgs.forEach(img => {
-        img.style.display = (cat === 'all' || img.dataset.category === cat) ? 'block' : 'none';
+        img.style.display = (folder === 'all' || img.dataset.folder === folder) ? 'block' : 'none';
     });
     document.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
 }
-// Tampilkan semua gambar awal
-filterCategory('all');
+// tampilkan semua awalnya
+filterFolder('all');
 </script>
 </body>
 </html>`;
@@ -89,8 +95,9 @@ filterCategory('all');
 }
 
 // Main
-const images = readImages(path.join(outputDir, 'LOGO'));
+const folders = readFolders(path.join(outputDir, 'LOGO'));
+const images = readImagesPerFolder(path.join(outputDir, 'LOGO'), folders);
 const htmlContent = generateHTML(images);
 fs.writeFileSync(outputFile, htmlContent, 'utf8');
 
-console.log(`✅ Interaktif HTML berhasil dibuat di ${outputFile}`);
+console.log(`✅ HTML interaktif dengan hover & responsive berhasil dibuat di ${outputFile}`);
