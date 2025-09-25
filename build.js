@@ -147,7 +147,7 @@ button.active {
 </style>
 </head>
 <body>
-<h1>Logo Gallery</h1>
+<h1>Logo Gallery CIA88 by DIGMA</h1>
 <div id="buttons">
 <button class="active" onclick="filterFolder('all')">Semua</button>
 `;
