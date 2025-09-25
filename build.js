@@ -37,27 +37,27 @@ function generateHTML(filesPerFolder) {
 <style>
 body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
 h1 { margin-bottom: 20px; text-align: center; }
-.folder-title { margin: 30px 0 10px; font-size: 1.2em; font-weight: bold; }
+#buttons { text-align: center; margin-bottom: 20px; }
+button { margin: 5px; padding: 8px 16px; cursor: pointer; border-radius: 5px; border: 1px solid #ccc; background: #eee; transition: 0.3s; }
+button:hover { background: #0050e9; color: #fff; }
+button.active { background: #0050e9; color: #fff; }
 
+.folder-section { margin-bottom: 30px; }
+.folder-title { margin-bottom: 10px; font-size: 1.2em; font-weight: bold; }
 .folder-gallery { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; }
-
 .folder-gallery img {
     height: auto;
     width: auto;
-    max-height: 150px;  /* batas maksimal */
-    max-width: 150px;   /* batas maksimal */
-    min-height: 30px;   /* batas minimal */
-    min-width: 30px;    /* batas minimal */
+    max-height: 150px;
+    max-width: 150px;
+    min-height: 30px;
+    min-width: 30px;
     border: 1px solid #ccc;
     border-radius: 8px;
     cursor: pointer;
     transition: transform 0.3s, box-shadow 0.3s;
 }
-
-.folder-gallery img:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-}
+.folder-gallery img:hover { transform: scale(1.05); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 
 /* Lightbox */
 #lightboxOverlay {
@@ -71,29 +71,60 @@ h1 { margin-bottom: 20px; text-align: center; }
 </head>
 <body>
 <h1>Logo Gallery</h1>
+<div id="buttons">
+<button class="active" onclick="filterFolder('all')">Semua</button>
 `;
 
 folders.forEach(folder => {
-    html += `<div class="folder-section">
-    <div class="folder-title">${folder}</div>
-    <div class="folder-gallery">\n`;
+    html += `<button onclick="filterFolder('${folder}')">${folder}</button>\n`;
+});
 
-    const files = filesPerFolder[folder];
-    files.forEach(f => {
-        html += `<img src="${f}" alt="${path.basename(f)}" onclick="openLightbox('${f}')">\n`;
+html += `</div>
+<div id="gallery-container">\n`;
+
+folders.forEach(folder => {
+    html += `<div class="folder-section" data-folder="${folder}">
+        <div class="folder-title">${folder}</div>
+        <div class="folder-gallery">\n`;
+
+    filesPerFolder[folder].forEach(f => {
+        html += `<img src="${f}" alt="${path.basename(f)}" data-folder="${folder}" onclick="openLightbox('${f}')">\n`;
     });
 
     html += `</div>
-</div>\n`;
+    </div>\n`;
 });
 
-html += `
+html += `</div>
+
 <div id="lightboxOverlay" onclick="closeLightbox()">
   <span>&times;</span>
   <img id="lightboxImage" src="" alt="Gambar">
 </div>
 
 <script>
+function filterFolder(folder) {
+    const sections = document.querySelectorAll('.folder-section');
+    sections.forEach(sec => {
+        if(folder === 'all') {
+            sec.style.display = 'block';
+            sec.querySelectorAll('img').forEach(img => img.style.display = 'inline-block');
+        } else {
+            if(sec.dataset.folder === folder) {
+                sec.style.display = 'block';
+                sec.querySelectorAll('img').forEach(img => img.style.display = 'inline-block');
+            } else {
+                sec.style.display = 'none';
+            }
+        }
+    });
+    document.querySelectorAll('#buttons button').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+// Tampilkan semua awalnya
+filterFolder('all');
+
 function openLightbox(src) {
     const overlay = document.getElementById('lightboxOverlay');
     const img = document.getElementById('lightboxImage');
@@ -117,4 +148,4 @@ const filesPerFolder = readFilesPerFolder(path.join(outputDir, 'LOGO'), folders)
 const htmlContent = generateHTML(filesPerFolder);
 fs.writeFileSync(outputFile, htmlContent, 'utf8');
 
-console.log('✅ Gallery per folder horizontal berhasil dibuat di', outputFile);
+console.log('✅ Gallery per folder horizontal dengan filter berhasil dibuat di', outputFile);
