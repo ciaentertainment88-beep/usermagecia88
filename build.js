@@ -6,32 +6,26 @@ const logoDir = path.join(__dirname, 'LOGO');
 const outputDir = path.join(__dirname, 'dist');
 const outputFile = path.join(outputDir, 'index.html');
 
-// Pastikan folder dist ada
 fse.ensureDirSync(outputDir);
-
-// Copy semua folder LOGO ke dist/LOGO
 fse.copySync(logoDir, path.join(outputDir, 'LOGO'));
 
-// Baca semua folder di LOGO
 function readFolders(dir) {
     return fs.readdirSync(dir, { withFileTypes: true })
         .filter(d => d.isDirectory())
         .map(d => d.name);
 }
 
-// Baca semua file per folder tanpa filter ekstensi
 function readFilesPerFolder(dir, folders) {
     const filesPerFolder = {};
     folders.forEach(folder => {
         const folderPath = path.join(dir, folder);
         const files = fs.readdirSync(folderPath)
-            .filter(f => fs.statSync(path.join(folderPath, f)).isFile()); // hanya file
+            .filter(f => fs.statSync(path.join(folderPath, f)).isFile());
         filesPerFolder[folder] = files.map(f => path.join('LOGO', folder, f));
     });
     return filesPerFolder;
 }
 
-// Generate HTML interaktif + lightbox
 function generateHTML(filesPerFolder) {
     const folders = Object.keys(filesPerFolder);
     let html = `<!DOCTYPE html>
@@ -39,7 +33,7 @@ function generateHTML(filesPerFolder) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Logo Gallery</title>
+<title>CIA88 ASEET BY USERMAGE</title>
 <style>
 body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
 h1 { margin-bottom: 20px; text-align: center; }
@@ -47,9 +41,13 @@ h1 { margin-bottom: 20px; text-align: center; }
 button { margin: 5px; padding: 8px 16px; cursor: pointer; border-radius: 5px; border: 1px solid #ccc; background: #eee; transition: 0.3s; }
 button:hover { background: #0050e9; color: #fff; }
 button.active { background: #0050e9; color: #fff; }
+
+/* Gallery grid */
 .gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
-.gallery img { max-width: 150px; height: auto; border: 1px solid #ccc; border-radius: 8px; display: none; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
-.gallery img:hover { transform: scale(1.1); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+.gallery.all { flex-direction: column; align-items: center; gap: 15px; } /* semua per baris */
+.gallery img { display: none; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; 
+               max-width: 300px; max-height: 300px; width: auto; height: auto; }
+.gallery img:hover { transform: scale(1.05); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 
 /* Lightbox */
 #lightboxOverlay {
@@ -67,24 +65,21 @@ button.active { background: #0050e9; color: #fff; }
 <button class="active" onclick="filterFolder('all')">Semua</button>
 `;
 
-    // tombol folder
-    folders.forEach(folder => {
-        html += `<button onclick="filterFolder('${folder}')">${folder}</button>\n`;
+folders.forEach(folder => {
+    html += `<button onclick="filterFolder('${folder}')">${folder}</button>\n`;
+});
+
+html += `</div>
+<div class="gallery" id="gallery">\n`;
+
+for (const [folder, files] of Object.entries(filesPerFolder)) {
+    files.forEach(f => {
+        html += `<img src="${f}" alt="${path.basename(f)}" data-folder="${folder}" onclick="openLightbox('${f}')">\n`;
     });
+}
 
-    html += `</div>
-<div class="gallery">\n`;
+html += `</div>
 
-    // semua file
-    for (const [folder, files] of Object.entries(filesPerFolder)) {
-        files.forEach(f => {
-            html += `<img src="${f}" alt="${path.basename(f)}" data-folder="${folder}" onclick="openLightbox('${f}')">\n`;
-        });
-    }
-
-    html += `</div>
-
-<!-- Lightbox overlay -->
 <div id="lightboxOverlay" onclick="closeLightbox()">
   <span>&times;</span>
   <img id="lightboxImage" src="" alt="Gambar">
@@ -93,6 +88,12 @@ button.active { background: #0050e9; color: #fff; }
 <script>
 function filterFolder(folder) {
     const imgs = document.querySelectorAll('.gallery img');
+    const gallery = document.getElementById('gallery');
+    if(folder === 'all') {
+        gallery.classList.add('all');
+    } else {
+        gallery.classList.remove('all');
+    }
     imgs.forEach(img => {
         img.style.display = (folder === 'all' || img.dataset.folder === folder) ? 'inline-block' : 'none';
     });
@@ -123,4 +124,4 @@ const filesPerFolder = readFilesPerFolder(path.join(outputDir, 'LOGO'), folders)
 const htmlContent = generateHTML(filesPerFolder);
 fs.writeFileSync(outputFile, htmlContent, 'utf8');
 
-console.log(`✅ HTML gallery fleksibel berhasil dibuat di ${outputFile}`);
+console.log('✅ HTML gallery hybrid berhasil dibuat di', outputFile);
