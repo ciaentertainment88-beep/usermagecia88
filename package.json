@@ -1,11 +1,10 @@
 {
-  "name": "cia88-gallery",
+  "name": "logo-gallery",
   "version": "1.0.0",
-  "description": "Gallery otomatis build-time untuk GitHub Pages",
-  "main": "build.js",
   "scripts": {
     "build": "node build.js"
   },
-  "author": "",
-  "license": "MIT"
+  "dependencies": {
+    "fs-extra": "^11.1.1"
+  }
 }
