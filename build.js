@@ -35,16 +35,74 @@ function generateHTML(filesPerFolder) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Logo Gallery</title>
 <style>
-body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
-h1 { margin-bottom: 20px; text-align: center; }
-#buttons { text-align: center; margin-bottom: 20px; }
-button { margin: 5px; padding: 8px 16px; cursor: pointer; border-radius: 5px; border: 1px solid #ccc; background: #eee; transition: 0.3s; }
-button:hover { background: #0050e9; color: #fff; }
-button.active { background: #0050e9; color: #fff; }
+/* --- Reset dan body --- */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #f0f4ff, #d9e4ff);
+    color: #333;
+}
 
-.folder-section { margin-bottom: 30px; }
-.folder-title { margin-bottom: 10px; font-size: 1.2em; font-weight: bold; }
-.folder-gallery { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; }
+/* --- Header --- */
+h1 {
+    text-align: center;
+    margin: 30px 0 10px;
+    font-size: 2em;
+    background: linear-gradient(90deg, #4e54c8, #8f94fb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* --- Filter buttons --- */
+#buttons {
+    text-align: center;
+    margin-bottom: 30px;
+}
+button {
+    margin: 5px;
+    padding: 10px 20px;
+    border-radius: 25px;
+    border: none;
+    background: #8f94fb;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+}
+button:hover {
+    background: #4e54c8;
+}
+button.active {
+    background: #ff758c;
+    color: white;
+}
+
+/* --- Folder section --- */
+.folder-section {
+    margin-bottom: 40px;
+    padding: 15px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* --- Folder title --- */
+.folder-title {
+    margin-bottom: 15px;
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #4e54c8;
+}
+
+/* --- Gallery images --- */
+.folder-gallery {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
 .folder-gallery img {
     height: auto;
     width: auto;
@@ -52,21 +110,40 @@ button.active { background: #0050e9; color: #fff; }
     max-width: 150px;
     min-height: 30px;
     min-width: 30px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     transition: transform 0.3s, box-shadow 0.3s;
 }
-.folder-gallery img:hover { transform: scale(1.05); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+.folder-gallery img:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
 
-/* Lightbox */
+/* --- Lightbox --- */
 #lightboxOverlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center;
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    justify-content: center;
+    align-items: center;
     z-index: 1000;
 }
-#lightboxOverlay img { max-width: 90%; max-height: 90%; border-radius: 10px; }
-#lightboxOverlay span { position: absolute; top: 20px; right: 30px; font-size: 30px; color: #fff; cursor: pointer; }
+#lightboxOverlay img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+#lightboxOverlay span {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 40px;
+    color: white;
+    cursor: pointer;
+}
 </style>
 </head>
 <body>
@@ -121,8 +198,6 @@ function filterFolder(folder) {
     document.querySelectorAll('#buttons button').forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
 }
-
-// Tampilkan semua awalnya
 filterFolder('all');
 
 function openLightbox(src) {
@@ -148,4 +223,4 @@ const filesPerFolder = readFilesPerFolder(path.join(outputDir, 'LOGO'), folders)
 const htmlContent = generateHTML(filesPerFolder);
 fs.writeFileSync(outputFile, htmlContent, 'utf8');
 
-console.log('✅ Gallery per folder horizontal dengan filter berhasil dibuat di', outputFile);
+console.log('✅ Gallery dengan tampilan elegan berhasil dibuat di', outputFile);
