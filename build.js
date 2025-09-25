@@ -19,21 +19,21 @@ function readFolders(dir) {
         .map(d => d.name);
 }
 
-// Baca semua gambar per folder
-function readImagesPerFolder(dir, folders) {
-    const images = {};
+// Baca semua file per folder tanpa filter ekstensi
+function readFilesPerFolder(dir, folders) {
+    const filesPerFolder = {};
     folders.forEach(folder => {
         const folderPath = path.join(dir, folder);
         const files = fs.readdirSync(folderPath)
-            .filter(f => /\.(png|gif|jpg|jpeg|webp)$/i.test(f));
-        images[folder] = files.map(f => path.join('LOGO', folder, f));
+            .filter(f => fs.statSync(path.join(folderPath, f)).isFile()); // hanya file
+        filesPerFolder[folder] = files.map(f => path.join('LOGO', folder, f));
     });
-    return images;
+    return filesPerFolder;
 }
 
 // Generate HTML interaktif + lightbox
-function generateHTML(images) {
-    const folders = Object.keys(images);
+function generateHTML(filesPerFolder) {
+    const folders = Object.keys(filesPerFolder);
     let html = `<!DOCTYPE html>
 <html lang="id">
 <head>
@@ -51,7 +51,7 @@ button.active { background: #0050e9; color: #fff; }
 .gallery img { max-width: 150px; height: auto; border: 1px solid #ccc; border-radius: 8px; display: none; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
 .gallery img:hover { transform: scale(1.1); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 
-/* Lightbox styles */
+/* Lightbox */
 #lightboxOverlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center;
@@ -75,8 +75,8 @@ button.active { background: #0050e9; color: #fff; }
     html += `</div>
 <div class="gallery">\n`;
 
-    // semua gambar
-    for (const [folder, files] of Object.entries(images)) {
+    // semua file
+    for (const [folder, files] of Object.entries(filesPerFolder)) {
         files.forEach(f => {
             html += `<img src="${f}" alt="${path.basename(f)}" data-folder="${folder}" onclick="openLightbox('${f}')">\n`;
         });
@@ -119,8 +119,8 @@ function closeLightbox() {
 
 // Main
 const folders = readFolders(path.join(outputDir, 'LOGO'));
-const images = readImagesPerFolder(path.join(outputDir, 'LOGO'), folders);
-const htmlContent = generateHTML(images);
+const filesPerFolder = readFilesPerFolder(path.join(outputDir, 'LOGO'), folders);
+const htmlContent = generateHTML(filesPerFolder);
 fs.writeFileSync(outputFile, htmlContent, 'utf8');
 
-console.log(`✅ HTML gallery dengan lightbox berhasil dibuat di ${outputFile}`);
+console.log(`✅ HTML gallery fleksibel berhasil dibuat di ${outputFile}`);
