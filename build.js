@@ -33,7 +33,7 @@ function generateHTML(filesPerFolder) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CIA88 ASEET BY USERMAGE</title>
+<title>Logo Gallery</title>
 <style>
 body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
 h1 { margin-bottom: 20px; text-align: center; }
@@ -42,11 +42,10 @@ button { margin: 5px; padding: 8px 16px; cursor: pointer; border-radius: 5px; bo
 button:hover { background: #0050e9; color: #fff; }
 button.active { background: #0050e9; color: #fff; }
 
-/* Gallery grid */
+/* Gallery */
 .gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
-.gallery.all { flex-direction: column; align-items: center; gap: 15px; } /* semua per baris */
-.gallery img { display: none; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; 
-               max-width: 300px; max-height: 300px; width: auto; height: auto; }
+.gallery.all { flex-wrap: nowrap; overflow-x: auto; } /* semua per baris horizontal */
+.gallery img { display: none; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; max-width: 300px; max-height: 300px; width: auto; height: auto; }
 .gallery img:hover { transform: scale(1.05); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 
 /* Lightbox */
@@ -90,9 +89,9 @@ function filterFolder(folder) {
     const imgs = document.querySelectorAll('.gallery img');
     const gallery = document.getElementById('gallery');
     if(folder === 'all') {
-        gallery.classList.add('all');
+        gallery.classList.add('all'); // satu baris horizontal
     } else {
-        gallery.classList.remove('all');
+        gallery.classList.remove('all'); // grid normal
     }
     imgs.forEach(img => {
         img.style.display = (folder === 'all' || img.dataset.folder === folder) ? 'inline-block' : 'none';
@@ -124,4 +123,4 @@ const filesPerFolder = readFilesPerFolder(path.join(outputDir, 'LOGO'), folders)
 const htmlContent = generateHTML(filesPerFolder);
 fs.writeFileSync(outputFile, htmlContent, 'utf8');
 
-console.log('✅ HTML gallery hybrid berhasil dibuat di', outputFile);
+console.log('✅ HTML gallery horizontal berhasil dibuat di', outputFile);
