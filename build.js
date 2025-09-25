@@ -6,26 +6,34 @@ const logoDir = path.join(__dirname, 'LOGO');
 const outputDir = path.join(__dirname, 'dist');
 const outputFile = path.join(outputDir, 'index.html');
 
+// Pastikan folder dist ada
 fse.ensureDirSync(outputDir);
 fse.copySync(logoDir, path.join(outputDir, 'LOGO'));
 
+// Baca semua folder
 function readFolders(dir) {
     return fs.readdirSync(dir, { withFileTypes: true })
         .filter(d => d.isDirectory())
         .map(d => d.name);
 }
 
+// Baca semua file gambar per folder
 function readFilesPerFolder(dir, folders) {
+    const allowedExt = ['.png', '.jpg', '.jpeg', '.gif', '.ico', '.webp', '.bmp', '.tiff', '.svg', '.heic', '.heif', '.jfif', '.avif'];
     const filesPerFolder = {};
     folders.forEach(folder => {
         const folderPath = path.join(dir, folder);
         const files = fs.readdirSync(folderPath)
-            .filter(f => fs.statSync(path.join(folderPath, f)).isFile());
+            .filter(f => {
+                const ext = path.extname(f).toLowerCase();
+                return fs.statSync(path.join(folderPath, f)).isFile() && allowedExt.includes(ext);
+            });
         filesPerFolder[folder] = files.map(f => path.join('LOGO', folder, f));
     });
     return filesPerFolder;
 }
 
+// Generate HTML gallery elegan
 function generateHTML(filesPerFolder) {
     const folders = Object.keys(filesPerFolder);
     let html = `<!DOCTYPE html>
@@ -33,35 +41,30 @@ function generateHTML(filesPerFolder) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Logo Gallery</title>
+<title>Logo Gallery CIA88</title>
 <style>
-/* --- Reset dan body --- */
 body {
     font-family: 'Segoe UI', sans-serif;
     margin: 0;
     padding: 0;
-    background: linear-gradient(135deg, #f0f4ff, #d9e4ff);
+    background: linear-gradient(135deg, #eef2ff, #d9e4ff);
     color: #333;
 }
-
-/* --- Header --- */
 h1 {
     text-align: center;
     margin: 30px 0 10px;
-    font-size: 2em;
+    font-size: 2.5em;
     background: linear-gradient(90deg, #4e54c8, #8f94fb);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
-
-/* --- Filter buttons --- */
 #buttons {
     text-align: center;
     margin-bottom: 30px;
 }
 button {
     margin: 5px;
-    padding: 10px 20px;
+    padding: 10px 22px;
     border-radius: 25px;
     border: none;
     background: #8f94fb;
@@ -79,24 +82,20 @@ button.active {
     color: white;
 }
 
-/* --- Folder section --- */
+/* Folder card */
 .folder-section {
     margin-bottom: 40px;
-    padding: 15px;
+    padding: 20px;
     background: white;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
 }
-
-/* --- Folder title --- */
 .folder-title {
     margin-bottom: 15px;
-    font-size: 1.3em;
+    font-size: 1.5em;
     font-weight: bold;
     color: #4e54c8;
 }
-
-/* --- Gallery images --- */
 .folder-gallery {
     display: flex;
     gap: 15px;
@@ -106,25 +105,25 @@ button.active {
 .folder-gallery img {
     height: auto;
     width: auto;
-    max-height: 150px;
-    max-width: 150px;
-    min-height: 30px;
-    min-width: 30px;
-    border-radius: 10px;
+    max-height: 160px;
+    max-width: 160px;
+    min-height: 40px;
+    min-width: 40px;
+    border-radius: 12px;
     cursor: pointer;
     transition: transform 0.3s, box-shadow 0.3s;
 }
 .folder-gallery img:hover {
-    transform: scale(1.08);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
 }
 
-/* --- Lightbox --- */
+/* Lightbox */
 #lightboxOverlay {
     position: fixed;
     top:0; left:0;
     width:100%; height:100%;
-    background: rgba(0,0,0,0.85);
+    background: rgba(0,0,0,0.9);
     display: none;
     justify-content: center;
     align-items: center;
@@ -134,13 +133,13 @@ button.active {
     max-width: 90%;
     max-height: 90%;
     border-radius: 15px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
 }
 #lightboxOverlay span {
     position: absolute;
     top: 20px;
     right: 30px;
-    font-size: 40px;
+    font-size: 45px;
     color: white;
     cursor: pointer;
 }
@@ -223,4 +222,4 @@ const filesPerFolder = readFilesPerFolder(path.join(outputDir, 'LOGO'), folders)
 const htmlContent = generateHTML(filesPerFolder);
 fs.writeFileSync(outputFile, htmlContent, 'utf8');
 
-console.log('✅ Gallery dengan tampilan elegan berhasil dibuat di', outputFile);
+console.log('✅ Gallery elegan dengan semua format gambar berhasil dibuat di', outputFile);
