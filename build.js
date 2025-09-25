@@ -48,8 +48,8 @@ button { margin: 5px; padding: 8px 16px; cursor: pointer; border-radius: 5px; bo
 button:hover { background: #0050e9; color: #fff; }
 button.active { background: #0050e9; color: #fff; }
 .gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
-.gallery img { display: none; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; } 
-.gallery img:hover { transform: scale(1.05); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+.gallery img { max-width: 150px; height: auto; border: 1px solid #ccc; border-radius: 8px; display: none; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
+.gallery img:hover { transform: scale(1.1); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 
 /* Lightbox */
 #lightboxOverlay {
@@ -67,6 +67,7 @@ button.active { background: #0050e9; color: #fff; }
 <button class="active" onclick="filterFolder('all')">Semua</button>
 `;
 
+    // tombol folder
     folders.forEach(folder => {
         html += `<button onclick="filterFolder('${folder}')">${folder}</button>\n`;
     });
@@ -74,7 +75,7 @@ button.active { background: #0050e9; color: #fff; }
     html += `</div>
 <div class="gallery">\n`;
 
-    // tampilkan semua file sesuai ukuran asli
+    // semua file
     for (const [folder, files] of Object.entries(filesPerFolder)) {
         files.forEach(f => {
             html += `<img src="${f}" alt="${path.basename(f)}" data-folder="${folder}" onclick="openLightbox('${f}')">\n`;
@@ -98,7 +99,6 @@ function filterFolder(folder) {
     document.querySelectorAll('#buttons button').forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
 }
-// tampilkan semua awalnya
 filterFolder('all');
 
 function openLightbox(src) {
@@ -123,4 +123,4 @@ const filesPerFolder = readFilesPerFolder(path.join(outputDir, 'LOGO'), folders)
 const htmlContent = generateHTML(filesPerFolder);
 fs.writeFileSync(outputFile, htmlContent, 'utf8');
 
-console.log(`✅ HTML gallery dengan ukuran asli berhasil dibuat di ${outputFile}`);
+console.log(`✅ HTML gallery fleksibel berhasil dibuat di ${outputFile}`);
