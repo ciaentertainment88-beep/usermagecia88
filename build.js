@@ -2,11 +2,10 @@ const fs = require('fs');
 const path = require('path');
 
 const logoFolder = path.join(__dirname, 'LOGO');
-const outputFile = path.join(__dirname, 'dist', 'index.html');
+const outputDir = path.join(__dirname, 'dist');
+const outputFile = path.join(outputDir, 'index.html');
 
-if (!fs.existsSync(path.join(__dirname, 'dist'))) {
-    fs.mkdirSync(path.join(__dirname, 'dist'));
-}
+fs.mkdirSync(outputDir, { recursive: true });
 
 let html = `<!DOCTYPE html>
 <html lang="id">
@@ -30,19 +29,23 @@ h1 { color: #333; margin-bottom: 40px; }
 `;
 
 const folders = fs.readdirSync(logoFolder).filter(f => fs.statSync(path.join(logoFolder, f)).isDirectory());
+
 folders.forEach(folder => {
-    const folderSafe = folder.replace(/ /g, "_"); // ganti spasi dengan underscore
-    html += `<div class="column"><h2>${folderSafe}</h2>\n`;
-    const files = fs.readdirSync(path.join(logoFolder, folder));
+    html += `<div class="column"><h2>${folder}</h2>\n`;
+
+    const files = fs.readdirSync(path.join(logoFolder, folder))
+        .filter(f => /\.(png|gif)$/i.test(f));
+
     files.forEach(file => {
-        const filePath = `LOGO/${folderSafe}/${file}`;
+        const filePath = `LOGO/${folder}/${file}`;
         const fileName = path.basename(file);
         html += `<img src="${filePath}" alt="${fileName}"><div class="caption">${fileName}</div>\n`;
     });
+
     html += `</div>\n`;
 });
 
 html += `</div>\n</body>\n</html>`;
 
 fs.writeFileSync(outputFile, html);
-console.log("Build selesai! HTML disimpan di dist/index.html");
+console.log("✅ Build selesai! HTML disimpan di dist/index.html");
